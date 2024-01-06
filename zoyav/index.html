@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Lato&display=swap" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="icon" type="image/x-icon" href="imgs/favicon.png">
+    <script type="text/javascript" src="script.js"></script>
+    <title>Zoyav's Image Collage</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Zoyav's Image Collage</h1>
+        
+        <div id="images-list-container">
+            <h2>Selected images:</h2>
+            <ol id="images-list">
+            </ol>
+        </div>
+
+        <label for="images-selector">Add images:</label>
+        <input id="images-selector" type="file" multiple accept="image/*"/>
+        
+        <br/>
+        
+        <button id="button-clear">Clear</button>
+
+        <br/>
+
+
+        <label for="images-per-row">Images per row:</label>
+        <input id="images-per-row" type="number" min="1" value="4"/>
+
+        <br/>
+        
+        <label for="images-spacing">Spacing:</label>
+        <input id="images-spacing" type="number" min="0" value="10"/>
+
+        <br/>
+
+        <button id="button-generate">Generate</button>
+        
+        <div id="preview-container">
+            <canvas id="preview"></canvas>
+            <a id="button-save" class="button" href="#" download="collage.png">Save</a>
+        </div>
+    </div>
+</body>
+</html>
