@@ -64,6 +64,8 @@ window.onload = () => {
         clearButton.disabled = false;
         generateButton.disabled = false;
         imagesSelector.value = "";
+
+        alert(clearButton.disabled);
     }
 
     clearButton.onclick = () => {
