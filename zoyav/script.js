@@ -37,16 +37,16 @@ window.onload = () => {
             const fileReader = new FileReader();
 
             promises.push(new Promise(resolve => {
-                fileReader.onload = (e) => {
+                fileReader.onload = async e => {
                     const img = new Image();
                     img.src = e.target.result;
-                    statusMessage += `INFO: Image ${file.name} read! W: ${img.width} H: ${img.height}\n`;
+                    statusMessage += `INFO: Image ${file.name} read!\n`;
 
-                    img.onload = () => {
-                        newImages.push(new ImageInfo(file.name, img));
-                        statusMessage += `INFO: Added ${file.name} to list of new images\n`;
-                        resolve();
-                    }
+                    await img.decode();
+
+                    newImages.push(new ImageInfo(file.name, img));
+                    statusMessage += `INFO: Added ${file.name} (W: ${img.width} H: ${img.height}) to list of new images\n`;
+                    resolve();
                 }
 
                 fileReader.readAsDataURL(file)
