@@ -21,6 +21,7 @@ window.onload = () => {
     const generateButton = document.getElementById("button-generate");
 
     const statusMessageElement = document.getElementById("status-message");
+    const logElement = document.getElementById("log");
 
     previewContainer.style.display = "none";
     clearButton.disabled = true;
@@ -29,6 +30,7 @@ window.onload = () => {
     const previewCanvasContext = previewCanvas.getContext("2d");
 
     let images = [];
+    let log = "";
 
     imagesSelector.onchange = async () => {
         const newImages = [];
@@ -41,6 +43,10 @@ window.onload = () => {
                 fileReader.onload = async e => {
                     const img = new Image();
                     img.src = e.target.result;
+
+                    img.onerror = (e) => {
+                        alert(e.toString());
+                    }
 
                     await img.decode();
 
@@ -80,6 +86,7 @@ window.onload = () => {
         statusMessageElement.innerText = "Generating...";
         statusMessageElement.style.display = "block";
         previewContainer.style.display = "none";
+        log = "";
 
         try {
             const imagesInRow = parseInt(imagesPerRowInput.value);
@@ -100,10 +107,14 @@ window.onload = () => {
             const finalImageWidth = (maxWidth + spacing) * imagesInRow + spacing;
             const finalImageHeight = (maxHeight + spacing) * rows + spacing;
 
-            const drawingCanvas = new OffscreenCanvas(finalImageWidth, finalImageHeight);            
+            log += `INFO: Creating OffscreenCanvas with size ${finalImageWidth}x${finalImageHeight}\n`;
+            const drawingCanvas = new OffscreenCanvas(finalImageWidth, finalImageHeight);
+            log += `INFO: Get canvas context\n`;
             const context = drawingCanvas.getContext("2d");
             
+            log += `INFO: Setting fill color to ${backgroundColor}\n`;
             context.fillStyle = backgroundColor;
+            log += `INFO: Filling canvas with background color\n`;
             context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
             
             for (let imageIdx = 0; imageIdx < numImages; ++imageIdx) {
@@ -114,6 +125,7 @@ window.onload = () => {
                 const x = column * (maxWidth + spacing) + spacing;
                 const y = row * (maxHeight + spacing) + spacing;
                 
+                log += `INFO: Drawing image with idx ${imageIdx} (${images[imageIdx].fileName}) in position (${x}, ${y})\n`;
                 context.drawImage(image, x, y);
             }
             
@@ -126,6 +138,7 @@ window.onload = () => {
                 previewCanvas.width = Math.round(drawingCanvas.width / drawingCanvas.height * previewCanvas.height);
             }
 
+            log += `INFO: Drawing image onto preview canvas\n`;
             previewCanvasContext.drawImage(drawingCanvas, 0, 0, previewCanvas.width, previewCanvas.height);
 
             const timestamp = new Date();
@@ -138,7 +151,9 @@ window.onload = () => {
             
             const timestampedName = `collage_${timestamp.getFullYear()}${paddedMonth}${paddedDay}_${paddedHours}${paddedMinutes}${paddedSeconds}.png`;
             
+            log += `INFO: Converting to Blob\n`;
             const finalImageBlob = await drawingCanvas.convertToBlob({type: "image/png"});
+            log += `INFO: Creating URL object from blob\n`;
             saveButton.href = URL.createObjectURL(finalImageBlob);
             
             saveButton.download = timestampedName;
@@ -147,6 +162,9 @@ window.onload = () => {
         }
         catch(ex) {
             statusMessageElement.innerText = ex.toString();
+        }
+        finally {
+            logElement.innerText = log;
         }
     }
 }
