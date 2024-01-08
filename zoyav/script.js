@@ -20,7 +20,9 @@ window.onload = () => {
     const clearButton = document.getElementById("button-clear");
     const generateButton = document.getElementById("button-generate");
 
-    previewContainer.style.display = 'none';
+    const statusMessageElement = document.getElementById("status-message");
+
+    previewContainer.style.display = "none";
     clearButton.disabled = true;
     generateButton.disabled = true;
 
@@ -75,66 +77,76 @@ window.onload = () => {
     }
 
     generateButton.onclick = async () => {
-        const imagesInRow = parseInt(imagesPerRowInput.value);
-        const spacing = parseInt(imagesSpacingInput.value);
-        const backgroundColor = backgroundColorInput.value;
+        statusMessageElement.innerText = "Generating...";
+        statusMessageElement.style.display = "block";
+        previewContainer.style.display = "none";
 
-        const numImages = images.length;
-        const rows = Math.ceil(numImages / imagesInRow);
+        try {
+            const imagesInRow = parseInt(imagesPerRowInput.value);
+            const spacing = parseInt(imagesSpacingInput.value);
+            const backgroundColor = backgroundColorInput.value;
 
-        let maxWidth = 0;
-        let maxHeight = 0;
+            const numImages = images.length;
+            const rows = Math.ceil(numImages / imagesInRow);
 
-        for (let imgInfo of images) {
-            maxWidth = Math.max(imgInfo.image.width, maxWidth);
-            maxHeight = Math.max(imgInfo.image.height, maxHeight);
-        }
+            let maxWidth = 0;
+            let maxHeight = 0;
 
-        const finalImageWidth = (maxWidth + spacing) * imagesInRow + spacing;
-        const finalImageHeight = (maxHeight + spacing) * rows + spacing;
+            for (let imgInfo of images) {
+                maxWidth = Math.max(imgInfo.image.width, maxWidth);
+                maxHeight = Math.max(imgInfo.image.height, maxHeight);
+            }
 
-        const drawingCanvas = new OffscreenCanvas(finalImageWidth, finalImageHeight);            
-        const context = drawingCanvas.getContext("2d");
-        
-        context.fillStyle = backgroundColor;
-        context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
-        
-        for (let imageIdx = 0; imageIdx < numImages; ++imageIdx) {
-            const image = images[imageIdx].image;
-            const row = Math.floor(imageIdx / imagesInRow);
-            const column = imageIdx - row * imagesInRow;
+            const finalImageWidth = (maxWidth + spacing) * imagesInRow + spacing;
+            const finalImageHeight = (maxHeight + spacing) * rows + spacing;
+
+            const drawingCanvas = new OffscreenCanvas(finalImageWidth, finalImageHeight);            
+            const context = drawingCanvas.getContext("2d");
             
-            const x = column * (maxWidth + spacing) + spacing;
-            const y = row * (maxHeight + spacing) + spacing;
+            context.fillStyle = backgroundColor;
+            context.fillRect(0, 0, drawingCanvas.width, drawingCanvas.height);
             
-            context.drawImage(image, x, y);
-        }
-        
-        if(finalImageWidth > finalImageHeight) {
-            previewCanvas.width = 1920;
-            previewCanvas.height = Math.round(drawingCanvas.height / drawingCanvas.width * previewCanvas.width);
-        }
-        else {
-            previewCanvas.height = 1920;
-            previewCanvas.width = Math.round(drawingCanvas.width / drawingCanvas.height * previewCanvas.width);
-        }
+            for (let imageIdx = 0; imageIdx < numImages; ++imageIdx) {
+                const image = images[imageIdx].image;
+                const row = Math.floor(imageIdx / imagesInRow);
+                const column = imageIdx - row * imagesInRow;
+                
+                const x = column * (maxWidth + spacing) + spacing;
+                const y = row * (maxHeight + spacing) + spacing;
+                
+                context.drawImage(image, x, y);
+            }
+            
+            if(finalImageWidth > finalImageHeight) {
+                previewCanvas.width = 1920;
+                previewCanvas.height = Math.round(drawingCanvas.height / drawingCanvas.width * previewCanvas.width);
+            }
+            else {
+                previewCanvas.height = 1920;
+                previewCanvas.width = Math.round(drawingCanvas.width / drawingCanvas.height * previewCanvas.width);
+            }
 
-        previewCanvasContext.drawImage(drawingCanvas, 0, 0, previewCanvas.width, previewCanvas.height);
+            previewCanvasContext.drawImage(drawingCanvas, 0, 0, previewCanvas.width, previewCanvas.height);
 
-        const timestamp = new Date();
-        
-        const paddedMonth = String(timestamp.getMonth() + 1).padStart(2, '0');
-        const paddedDay = String(timestamp.getDate()).padStart(2, '0');
-        const paddedHours = String(timestamp.getHours()).padStart(2, '0');
-        const paddedMinutes = String(timestamp.getMinutes()).padStart(2, '0');
-        const paddedSeconds = String(timestamp.getSeconds()).padStart(2, '0');
-        
-        const timestampedName = `collage_${timestamp.getFullYear()}${paddedMonth}${paddedDay}_${paddedHours}${paddedMinutes}${paddedSeconds}.png`;
-        
-        const finalImageBlob = await drawingCanvas.convertToBlob({type: "image/png"});
-        saveButton.href = URL.createObjectURL(finalImageBlob);
-        
-        saveButton.download = timestampedName;
-        previewContainer.style.display = 'block';
+            const timestamp = new Date();
+            
+            const paddedMonth = String(timestamp.getMonth() + 1).padStart(2, '0');
+            const paddedDay = String(timestamp.getDate()).padStart(2, '0');
+            const paddedHours = String(timestamp.getHours()).padStart(2, '0');
+            const paddedMinutes = String(timestamp.getMinutes()).padStart(2, '0');
+            const paddedSeconds = String(timestamp.getSeconds()).padStart(2, '0');
+            
+            const timestampedName = `collage_${timestamp.getFullYear()}${paddedMonth}${paddedDay}_${paddedHours}${paddedMinutes}${paddedSeconds}.png`;
+            
+            const finalImageBlob = await drawingCanvas.convertToBlob({type: "image/png"});
+            saveButton.href = URL.createObjectURL(finalImageBlob);
+            
+            saveButton.download = timestampedName;
+            previewContainer.style.display = "block";
+            statusMessageElement.innerText = "Done!";
+        }
+        catch(ex) {
+            statusMessageElement.innerText = ex.toString();
+        }
     }
 }
