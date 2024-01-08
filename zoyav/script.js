@@ -123,7 +123,7 @@ window.onload = () => {
             }
             else {
                 previewCanvas.height = 1920;
-                previewCanvas.width = Math.round(drawingCanvas.width / drawingCanvas.height * previewCanvas.width);
+                previewCanvas.width = Math.round(drawingCanvas.width / drawingCanvas.height * previewCanvas.height);
             }
 
             previewCanvasContext.drawImage(drawingCanvas, 0, 0, previewCanvas.width, previewCanvas.height);
