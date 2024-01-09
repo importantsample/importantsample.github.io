@@ -11,6 +11,7 @@ window.onload = () => {
     const previewContainer = document.getElementById("preview-container");
 
     const imagesPerRowInput = document.getElementById("images-per-row");
+    const imagesScaleInput = document.getElementById("images-scale");
     const imagesSpacingInput = document.getElementById("images-spacing");
     const backgroundColorInput = document.getElementById("background-color");
 
@@ -90,6 +91,7 @@ window.onload = () => {
 
         try {
             const imagesInRow = parseInt(imagesPerRowInput.value);
+            const scale = parseFloat(imagesScaleInput.value);
             const spacing = parseInt(imagesSpacingInput.value);
             const backgroundColor = backgroundColorInput.value;
 
@@ -100,8 +102,8 @@ window.onload = () => {
             let maxHeight = 0;
 
             for (let imgInfo of images) {
-                maxWidth = Math.max(imgInfo.image.width, maxWidth);
-                maxHeight = Math.max(imgInfo.image.height, maxHeight);
+                maxWidth = Math.max(Math.ceil(scale * imgInfo.image.width), maxWidth);
+                maxHeight = Math.max(Math.ceil(scale * imgInfo.image.height), maxHeight);
             }
 
             const finalImageWidth = (maxWidth + spacing) * imagesInRow + spacing;
@@ -126,7 +128,7 @@ window.onload = () => {
                 const y = row * (maxHeight + spacing) + spacing;
                 
                 log += `INFO: Drawing image with idx ${imageIdx} (${images[imageIdx].fileName}) in position (${x}, ${y})\n`;
-                context.drawImage(image, x, y);
+                context.drawImage(image, x, y, Math.ceil(scale * image.width), Math.ceil(scale * image.height));
             }
             
             if(finalImageWidth > finalImageHeight) {
